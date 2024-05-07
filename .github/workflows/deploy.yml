@@ -1,0 +1,39 @@
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches:
+      - main  # このブランチにプッシュされた時にワークフローがトリガーされます。
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest  # GitHub Actions ランナーの仕様
+
+    steps:
+    - uses: actions/checkout@v2  # リポジトリのコードをチェックアウト
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.12.2'  # 使用する Node.js のバージョン
+
+    - name: Install dependencies
+      run: npm install  # 依存関係のインストール
+
+    - name: Build
+      run: npm run build  # ビルドスクリプトを実行（package.json内に定義）
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.TSUTOMUTESTSECRET }}  # GitHub Secrets から認証情報を取得
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_APP_NAME }}  # App Service の名前
+        slot-name: 'production'  # デプロイスロット
+        package: '.'  # デプロイするディレクトリまたはファイル
+
+    - name: Logout from Azure
+      run: az logout
