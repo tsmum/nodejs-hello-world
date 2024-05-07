@@ -20,9 +20,6 @@ jobs:
     - name: Install dependencies
       run: npm install  # 依存関係のインストール
 
-    - name: Build
-      run: npm run build  # ビルドスクリプトを実行（package.json内に定義）
-
     - name: Login to Azure
       uses: azure/login@v1
       with:
