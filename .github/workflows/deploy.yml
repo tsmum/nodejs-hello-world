@@ -23,9 +23,11 @@ jobs:
     - name: Allow GitHub Actions IP ranges to access SCM
       run: |
         GITHUB_ACTIONS_IP_RANGES=$(curl -s https://api.github.com/meta | jq -r '.actions[]')
+        priority=100
         for ip in $GITHUB_ACTIONS_IP_RANGES; do
-          az webapp config access-restriction add --resource-group "2405070060001008githubaction" --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --action Allow --ip-address $ip
-        done
+          az webapp config access-restriction add --resource-group "2405070060001008githubaction" --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --action Allow --ip-address $ip --priority $priority --scm-site true
+          priority=$$((priority + 1))
+          done
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
