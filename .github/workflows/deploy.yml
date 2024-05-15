@@ -20,14 +20,22 @@ jobs:
     - name: Install dependencies
       run: npm install  # 依存関係のインストール
 
+    - name: Login to Azure using Managed Identity
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
     - name: Allow GitHub Actions IP ranges to access SCM
+      shell: pwsh
       run: |
-        GITHUB_ACTIONS_IP_RANGES=$(curl -s https://api.github.com/meta | jq -r '.actions[]')
-        priority=100
-        for ip in $GITHUB_ACTIONS_IP_RANGES; do
-          az webapp config access-restriction add --resource-group "2405070060001008githubaction" --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --action Allow --ip-address $ip --priority $priority --scm-site true
-          priority=$$((priority + 1))
-          done
+        # GitHub ActionsのIPレンジを許可
+        $GITHUB_ACTIONS_IP_RANGES = (Invoke-RestMethod -Uri "https://api.github.com/meta").actions
+        $priority = 100
+        foreach ($ip in $GITHUB_ACTIONS_IP_RANGES) {
+          az webapp config access-restriction add --resource-group YOUR_RESOURCE_GROUP --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --action Allow --ip-address $ip --priority $priority --scm-site true
+          $priority++
+        }
+
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
