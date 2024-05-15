@@ -21,7 +21,7 @@ jobs:
       run: npm install  # 依存関係のインストール
 
     - name: Login to Azure using Managed Identity
-      run: az login --identity --username ${{ secrets.MANAGED_IDENTITY_CLIENT_ID }}
+      run: az login --identity --u ${{ secrets.MANAGED_IDENTITY_CLIENT_ID }}
 
     - name: Allow GitHub Actions IP ranges to access SCM
       shell: pwsh
