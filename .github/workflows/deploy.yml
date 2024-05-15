@@ -20,10 +20,8 @@ jobs:
     - name: Install dependencies
       run: npm install  # 依存関係のインストール
 
-    - name: Login to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.TSUTOMUTESTSECRET }} 
+    - name: Login to Azure using Managed Identity
+      run: az login --identity --username ${{ secrets.MANAGED_IDENTITY_CLIENT_ID }}
 
     - name: Allow GitHub Actions IP ranges to access SCM
       shell: pwsh
@@ -36,13 +34,21 @@ jobs:
           $priority++
         }
 
-
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ secrets.AZURE_APP_NAME }}  # App Service の名前
-        slot-name: 'production'  # デプロイスロット
-        package: '.'  # デプロイするディレクトリまたはファイル
+        app-name: ${{ secrets.AZURE_APP_NAME }}
+        slot-name: 'production'
+        package: '.'
+
+    - name: Remove GitHub Actions IP ranges from SCM access
+      shell: pwsh
+      run: |
+        # デプロイ後にIPレンジの許可を取り消す
+        $GITHUB_ACTIONS_IP_RANGES = (Invoke-RestMethod -Uri "https://api.github.com/meta").actions
+        foreach ($ip in $GITHUB_ACTIONS_IP_RANGES) {
+          az webapp config access-restriction remove --resource-group YOUR_RESOURCE_GROUP --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --scm-site true
+        }
 
     - name: Logout from Azure
       run: az logout
