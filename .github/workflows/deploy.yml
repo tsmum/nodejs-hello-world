@@ -32,10 +32,9 @@ jobs:
         $GITHUB_ACTIONS_IP_RANGES = (Invoke-RestMethod -Uri "https://api.github.com/meta").actions
         $priority = 100
         foreach ($ip in $GITHUB_ACTIONS_IP_RANGES) {
-          az webapp config access-restriction add --resource-group 2405070060001008githubaction --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --action Allow --ip-address $ip --priority $priority --scm-site true --identity ${{ secrets.MANAGED_IDENTITY_CLIENT_ID }}
+          az webapp config access-restriction add --resource-group 2405070060001008githubaction --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --action Allow --ip-address $ip --priority $priority --scm-site true
           $priority++
         }
-
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
@@ -43,6 +42,15 @@ jobs:
         app-name: ${{ secrets.AZURE_APP_NAME }}  # App Service の名前
         slot-name: 'production'  # デプロイスロット
         package: '.'  # デプロイするディレクトリまたはファイル
+
+    - name: Remove GitHub Actions IP ranges from SCM access
+      shell: pwsh
+      run: |
+        # デプロイ後にIPレンジの許可を取り消す
+        $GITHUB_ACTIONS_IP_RANGES = (Invoke-RestMethod -Uri "https://api.github.com/meta").actions
+        foreach ($ip in $GITHUB_ACTIONS_IP_RANGES) {
+          az webapp config access-restriction remove --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --scm-site true  # --identity オプションを削除
+        }
 
     - name: Logout from Azure
       run: az logout
