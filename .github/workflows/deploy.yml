@@ -25,17 +25,6 @@ jobs:
       with:
         creds: ${{ secrets.TSUTOMUTESTSECRET }} 
 
-    - name: Allow GitHub Actions IP ranges to access SCM
-      shell: pwsh
-      run: |
-        # GitHub ActionsのIPレンジを許可
-        $GITHUB_ACTIONS_IP_RANGES = (Invoke-RestMethod -Uri "https://api.github.com/meta").actions
-        $priority = 100
-        foreach ($ip in $GITHUB_ACTIONS_IP_RANGES) {
-          az webapp config access-restriction add --resource-group 2405070060001008githubaction --name ${{ secrets.AZURE_APP_NAME }} --rule-name AllowGitHubActions_$ip --action Allow --ip-address $ip --priority $priority --scm-site true
-          $priority++
-        }
-
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
