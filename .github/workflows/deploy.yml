@@ -36,9 +36,9 @@ jobs:
         slot-name: 'production'  
         package: '.' 
 
-#    - name: Remove GitHub Actions IP ranges from SCM access
-#      run: |
-#          az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Deny
+    - name: Remove GitHub Actions IP ranges from SCM access
+      run: |
+          az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Deny
   
     - name: Logout from Azure
       run: az logout
