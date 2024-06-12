@@ -21,7 +21,7 @@ jobs:
       run: npm install  # 依存関係のインストール
 
     - name: Login to Azure
-      uses: azure/login@v1
+      uses: azure/login@v3
       with:
         creds: ${{ secrets.TSUTOMUTESTSECRET }} 
 
