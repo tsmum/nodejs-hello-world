@@ -5,6 +5,10 @@ on:
     branches:
       - main  # このブランチにプッシュされた時にワークフローがトリガーされます。
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest  # GitHub Actions ランナーの仕様
