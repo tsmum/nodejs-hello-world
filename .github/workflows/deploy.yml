@@ -22,7 +22,7 @@ jobs:
         node-version: '20.12.2'  # 使用する Node.js のバージョン
 
     - name: Install dependencies
-      run: npm install  # 依存関係のインストール
+      run: npm install  # 依存関係のインストール1
 
     - name: Debug Environment Variables
       run: |
