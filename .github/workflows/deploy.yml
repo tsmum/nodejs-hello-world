@@ -24,14 +24,6 @@ jobs:
     - name: Install dependencies
       run: npm install  # 依存関係のインストール1
 
-    - name: Debug Environment Variables
-      run: |
-        echo "AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}"
-        echo "AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}"
-        echo "AZURE_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-        echo "AZURE_RESOURCE_GROUP=${{ secrets.AZURE_RESOURCE_GROUP }}"
-        echo "AZURE_APP_NAME=${{ secrets.AZURE_APP_NAME }}"
-
     - name: Login to Azure
       uses: azure/login@v1
       with:
@@ -39,9 +31,9 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }} 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Allow GitHub Actions IP ranges to access SCM
-      run: |
-          az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Allow
+ #   - name: Allow GitHub Actions IP ranges to access SCM1
+ #     run: |
+ #         az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Allow
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
@@ -50,9 +42,9 @@ jobs:
         slot-name: 'production'  
         package: '.' 
 
-    - name: Remove GitHub Actions IP ranges from SCM access
-      run: |
-          az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Deny
+  #  - name: Remove GitHub Actions IP ranges from SCM access
+  #    run: |
+ #         az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Deny
   
     - name: Logout from Azure
       run: az logout
