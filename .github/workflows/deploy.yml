@@ -32,7 +32,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       continue-on-error: true
 
- #   - name: Allow GitHub Actions IP ranges to access SCM1
+ #   - name: Allow GitHub Actions IP ranges to access SCM1a
  #     run: |
  #         az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Allow
 
