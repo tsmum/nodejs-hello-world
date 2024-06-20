@@ -5,9 +5,9 @@ on:
     branches:
       - main  # このブランチにプッシュされた時にワークフローがトリガーされます。
 
-permissions:  #OICD でaz login をできるようにします。
-  id-token: write
-  contents: read
+#permissions:  #OIDC でaz login をできるようにします。
+ # id-token: write
+ # contents: read
 
 jobs:
   build-and-deploy:
@@ -34,7 +34,7 @@ jobs:
 
     - name: Allow GitHub Actions IP ranges to access SCM1a
       run: |
-          az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Allow
+         az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Allow
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
