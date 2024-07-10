@@ -23,7 +23,7 @@ jobs:
 
     - name: Install dependencies
       run: npm install  # 依存関係のインストール
-git 
+      
     - name: Login to Azure using Managed Identity
       run: |
         echo "Logging in using Managed Identity"
