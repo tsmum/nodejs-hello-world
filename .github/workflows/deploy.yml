@@ -34,7 +34,7 @@ jobs:
         echo "Setting the Azure subscription"
         az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Allow GitHub Actions IP ranges to access SCM2
+    - name: Allow GitHub Actions IP ranges to access SCM3
       run: |
          az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Allow
 
