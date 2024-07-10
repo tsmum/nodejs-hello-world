@@ -1,0 +1,57 @@
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches:
+      - main  # このブランチにプッシュされた時にワークフローがトリガーされます。
+
+#permissions:  #OIDC でaz login をできるようにします。
+#  id-token: write
+#  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest  # GitHub Actions ランナーの仕様
+
+    steps:
+    - uses: actions/checkout@v2  # リポジトリのコードをチェックアウト
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.12.2'  # 使用する Node.js のバージョン
+
+    - name: Install dependencies
+      run: npm install  # 依存関係のインストール
+
+    - name: Login to Azure using Managed Identity
+      run: |
+        echo "Logging in using Managed Identity"
+        az login --identity --username ${{ secrets.MANAGED_IDENTITY_CLIENT_ID }}
+
+    - name: Set Azure subscription
+      run: |
+        echo "Setting the Azure subscription"
+        az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Allow GitHub Actions IP ranges to access SCM
+      run: |
+         az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Allow
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_APP_NAME }}
+        slot-name: 'production'
+        package: .
+
+    - name: Remove GitHub Actions IP ranges from SCM access
+      run: |
+          az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Deny
+
+    - name: Logout from Azure
+      run: az logout
+  
+
+  
+  
