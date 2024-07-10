@@ -6,8 +6,8 @@ on:
       - main  # このブランチにプッシュされた時にワークフローがトリガーされます。
 
 #permissions:  #OIDC でaz login をできるようにします。
- # id-token: write
- # contents: read
+#  id-token: write
+#  contents: read
 
 jobs:
   build-and-deploy:
@@ -24,29 +24,29 @@ jobs:
     - name: Install dependencies
       run: npm install  # 依存関係のインストール
 
-    - name: Login to Azure
-      uses: azure/login@v2
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }} 
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }} 
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      continue-on-error: true
+    - name: Login to Azure using Managed Identity
+      run: |
+        echo "Logging in using Managed Identity"
+        az login --identity --username ${{ secrets.MANAGED_IDENTITY_CLIENT_ID }}
 
-    - name: Allow GitHub Actions IP ranges to access SCM1a
+    - name: Set Azure subscription
+      run: |
+        echo "Setting the Azure subscription"
+        az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Allow GitHub Actions IP ranges to access SCM
       run: |
          az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Allow
 
     - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ secrets.AZURE_APP_NAME }}
-        slot-name: 'production'  
-        package: '.' 
+      run: |
+        echo "Deploying to Azure Web App"
+        az webapp up --name ${{ secrets.AZURE_APP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --sku B1 --location "Japan East" --html
 
     - name: Remove GitHub Actions IP ranges from SCM access
       run: |
           az webapp config access-restriction set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_APP_NAME }} --scm-default-action Deny
-  
+
     - name: Logout from Azure
       run: az logout
   
